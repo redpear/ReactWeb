@@ -1,54 +1,45 @@
+import { Link, useNavigate } from "react-router-dom";
+import ApiStatus from "../ApiStatus";
+import { currencyFormatter } from "../config";
+import useFetchHouses from "../hooks/HouseHooks";
 
-import {House} from "../types/house";
-import config from "../config";
-import { useState } from "react";
+const HouseList = () => {
+    const nav = useNavigate();
+    const {data, status, isSuccess } = useFetchHouses();
 
-const HouseList = () => 
-{
-    const [houses, setHouses] = useState<House[]>([]);
+    if(!isSuccess)
+      return <ApiStatus status={status}/>
 
-
-    //fetching the data from the backend Api
-    const fetchHouses = async () => {
-        const rsp = await fetch(`${config.baseApiUrl}/houses`);
-        // deserialize the response into an array
-        const houses = await rsp.json();
-
-        // change the state with a new array - update
-        setHouses(houses);
-    };
-    // call the async function
-    fetchHouses();
-return (
-    <div>
-      <div className="row mb-2">
-        <h5 className="themeFontColor text-center">
-          Houses currently on the market
-        </h5>
-      </div>
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th>Address</th>
-            <th>Country</th>
-            <th>Asking Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {houses.map((h) => (
-            <tr key={h.id}>
-                <td>{h.address}</td>
-                <td>{h.country}</td>
-                <td>{h.price}</td>
+  return (
+      <div>
+        <div className="row mb-2">
+          <h5 className="themeFontColor text-center">
+            Houses currently on the market
+          </h5>
+        </div>
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>Address</th>
+              <th>Country</th>
+              <th>Asking Price</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {/* <Link className="btn btn-primary" to="/house/add">
-        Add
-      </Link> */}
-    </div>
-    )
+          </thead>
+          <tbody>
+            {data && data.map((h) => (
+              <tr key={h.id} onClick={() => nav(`/house/${h.id}`)}>
+                  <td>{h.address}</td>
+                  <td>{h.country}</td>
+                  <td>{currencyFormatter.format(h.price)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Link className="btn btn-primary" to="/house/add">
+          Add
+        </Link> 
+      </div>
+      )
 }
 
 export default HouseList;
