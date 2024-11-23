@@ -4,6 +4,7 @@ import config from "../config";
 import {House} from "../types/house";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError, AxiosResponse } from "axios";
+import Problem from "../types/problem";
 
 
 // this is a custom hook
@@ -26,24 +27,22 @@ const useFetchHouses = () => {
     }
     
     const useAddHouse = () => {
+        const queryClient = useQueryClient();
         const nav = useNavigate();
-        const queryClient = useQueryClient(); 
-        return useMutation<AxiosResponse, AxiosError, House>({
-            mutationFn: (h) => axios.post(`${config.baseApiUrl}/houses`, h),
-            onSuccess: () => {
-                queryClient.invalidateQueries({
-                    queryKey: ["houses"]
-                });
-                nav("/")
-            },
+        
+        return useMutation<AxiosResponse, AxiosError<Problem>, House>({
+          mutationFn: (h) => axios.post(`${config.baseApiUrl}/houses`, h),
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["houses"] });
+            nav("/");
+          },
         });
-    };
-
+      };
 
     const useUpdateHouse = () => {
         const nav = useNavigate();
         const queryClient = useQueryClient(); 
-        return useMutation<AxiosResponse, AxiosError, House>({
+        return useMutation<AxiosResponse, AxiosError<Problem>, House>({
             mutationFn: (h) => axios.put(`${config.baseApiUrl}/houses`, h),
             onSuccess: (_,house) => {
                 queryClient.invalidateQueries({
